@@ -7,32 +7,52 @@ import {
   View,
   Platform,
 } from 'react-native';
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import TodoList from '../components/TodoList';
 import TodoTextInput from '../components/TodoTextInput';
 import {TodoContext} from '../context/todoContext';
+import {getTodoList, storeTodo, updateTodoFunc} from '../service/api';
 
 const MainScreen = () => {
   const [value, setValue] = useState('');
-  const [todoId, setTodoId] = useState('');
+  const [updateTodo, setUpdateTodo] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const todoContext = useContext(TodoContext);
 
-  const addTodo = () => {
+  useEffect(() => {
+    async function getList() {
+      const todoList = await getTodoList();
+
+      todoContext.setTodoList(todoList);
+    }
+
+    getList();
+  }, []);
+
+  const addOrUpdateTodo = async () => {
     if (isEditing) {
-      todoContext.updateTodo(todoId, {text: value});
+      const todoItem = {
+        text: value,
+        date: updateTodo.date,
+        checked: updateTodo.checked,
+      };
+      todoContext.updateTodo(updateTodo.id, todoItem);
+      await updateTodoFunc(updateTodo.id, todoItem);
       setValue('');
     } else {
-      todoContext.addTodo({text: value, date: new Date()});
+      const todoItem = {text: value, date: new Date(), checked: false};
+      const id = await storeTodo(todoItem);
+      todoContext.addTodo({...todoItem, id: id});
       setValue('');
     }
     setIsEditing(false);
   };
 
   const updateTodoItem = item => {
+    console.log(item);
     setValue(item.item.text);
     setIsEditing(true);
-    setTodoId(item.item.id);
+    setUpdateTodo(item.item);
   };
 
   return (
@@ -50,7 +70,7 @@ const MainScreen = () => {
           <TodoTextInput value={value} setValue={setValue} />
           <TouchableOpacity
             style={styles.addButton}
-            onPress={addTodo}></TouchableOpacity>
+            onPress={addOrUpdateTodo}></TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

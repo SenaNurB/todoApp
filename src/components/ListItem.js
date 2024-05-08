@@ -1,15 +1,26 @@
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React, {useContext} from 'react';
 import {TodoContext} from '../context/todoContext';
+import {updateTodoFunc} from '../service/api';
 
 const ListItem = ({data, deleteTodo, updateTodo}) => {
   const todoContext = useContext(TodoContext);
+
+  const checkedFunc = async () => {
+    const todoItem = {
+      text: data.text,
+      date: data.date,
+      checked: !data.checked,
+    };
+    todoContext.updateTodo(data.id, {checked: !data.checked});
+    await updateTodoFunc(data.id, todoItem);
+  };
 
   return (
     <View style={styles.container}>
       <TouchableOpacity
         onPress={() => {
-          todoContext.updateTodo(data.id, {checked: !data.checked});
+          checkedFunc();
         }}>
         <View
           style={[

@@ -1,13 +1,15 @@
-import {FlatList, StyleSheet} from 'react-native';
+import {FlatList} from 'react-native';
 import React, {useContext} from 'react';
 import ListItem from './ListItem';
 import {TodoContext} from '../context/todoContext';
+import {deleteTodo} from '../service/api';
 
 const TodoList = ({updateTodoItem}) => {
   const todoContext = useContext(TodoContext);
 
-  const updateTodo = itemData => {
-    updateTodoItem(itemData);
+  const deleteTodoItem = async id => {
+    await deleteTodo(id);
+    todoContext.deleteTodo(id);
   };
 
   const renderTodoItem = itemData => {
@@ -15,10 +17,10 @@ const TodoList = ({updateTodoItem}) => {
       <ListItem
         data={itemData.item}
         deleteTodo={() => {
-          todoContext.deleteTodo(itemData.item.id);
+          deleteTodoItem(itemData.item.id);
         }}
         updateTodo={() => {
-          updateTodo(itemData);
+          updateTodoItem(itemData);
         }}
       />
     );
@@ -34,5 +36,3 @@ const TodoList = ({updateTodoItem}) => {
 };
 
 export default TodoList;
-
-const styles = StyleSheet.create({});

@@ -1,22 +1,32 @@
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import React from 'react';
+import React, {useContext} from 'react';
+import {TodoContext} from '../context/todoContext';
 
-const ListItem = ({data}) => {
+const ListItem = ({data, deleteTodo, updateTodo}) => {
+  const todoContext = useContext(TodoContext);
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity>
-        <View style={styles.todoCheck}></View>
+      <TouchableOpacity
+        onPress={() => {
+          todoContext.updateTodo(data.id, {checked: !data.checked});
+        }}>
+        <View
+          style={[
+            styles.todoCheck,
+            data?.checked && {backgroundColor: 'green'},
+          ]}></View>
       </TouchableOpacity>
 
       <View style={styles.itemTextContainer}>
         <Text>{data.text}</Text>
       </View>
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={updateTodo}>
         <View style={[styles.actionIcon, {backgroundColor: 'green'}]}></View>
       </TouchableOpacity>
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={deleteTodo}>
         <View style={styles.actionIcon}></View>
       </TouchableOpacity>
     </View>

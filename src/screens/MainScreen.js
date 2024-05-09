@@ -3,18 +3,21 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
-  TextInput,
 } from 'react-native';
-import React, {useContext, useState, useEffect} from 'react';
-import TodoList from '../components/TodoList';
-import TodoTextInput from '../components/TodoTextInput';
+import React, {useContext, useState, useEffect, useRef} from 'react';
+import {
+  TodoList,
+  TodoTextInput,
+  AddOrUpdateButton,
+  SearchInput,
+  NoData,
+  ErrorMessage,
+  LoadingSpinner,
+  CancelButton,
+} from '../components';
 import {TodoContext} from '../context/todoContext';
 import {getTodoList, storeTodo, updateTodoFunc} from '../service/api';
-import LoadingSpinner from '../components/LoadingSpinner';
-import ErrorMessage from '../components/ErrorMessage';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -31,6 +34,7 @@ const MainScreen = () => {
   const [error, setError] = useState(null);
   const [isKeyboardAvoidingEnabled, setIsKeyboardAvoidingEnabled] =
     useState(true);
+  const textInputRef = useRef(null);
 
   const todoContext = useContext(TodoContext);
   const todoList = todoContext.todoList;
@@ -70,6 +74,7 @@ const MainScreen = () => {
       todoContext.updateTodo(updateTodo.id, todoItem);
       await updateTodoFunc(updateTodo.id, todoItem);
       setValue('');
+      setSearchText('');
     } else {
       const todoItem = {text: value, date: new Date(), checked: false};
       const id = await storeTodo(todoItem);
@@ -84,6 +89,7 @@ const MainScreen = () => {
     setValue(item.text);
     setIsEditing(true);
     setUpdateTodo(item);
+    textInputRef.current.focus();
   };
 
   const handleSearch = text => {
@@ -92,6 +98,12 @@ const MainScreen = () => {
       todo.text.toLowerCase().includes(searchText.toLowerCase()),
     );
     setFilteredTodoList(filteredTodoList);
+  };
+
+  const cancelFunc = () => {
+    setIsEditing(false);
+    setValue('');
+    textInputRef.current.blur();
   };
 
   return (
@@ -103,14 +115,10 @@ const MainScreen = () => {
           <Text style={styles.headerText}>TODO's</Text>
           {todoList?.length > 0 ? (
             <>
-              <TextInput
-                placeholder="Search"
-                style={styles.textInput}
-                clearButtonMode="always"
-                value={searchText}
-                onChangeText={text => handleSearch(text)}
-                onFocus={() => setIsKeyboardAvoidingEnabled(false)}
-                onBlur={() => setIsKeyboardAvoidingEnabled(true)}
+              <SearchInput
+                handleSearch={handleSearch}
+                searchText={searchText}
+                setIsKeyboardAvoidingEnabled={setIsKeyboardAvoidingEnabled}
               />
 
               <TodoList
@@ -119,9 +127,7 @@ const MainScreen = () => {
               />
             </>
           ) : (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>ADD TODO</Text>
-            </View>
+            <NoData />
           )}
         </View>
 
@@ -129,17 +135,14 @@ const MainScreen = () => {
           <View style={styles.addTodoContainer}>
             <TodoTextInput
               value={value}
-              onChangeText={value => setValue(value)}
+              onChangeText={text => setValue(text)}
+              textInputRef={textInputRef}
             />
-            <TouchableOpacity
-              style={[
-                styles.addButton,
-                !value && {backgroundColor: constantColors.disable},
-              ]}
-              onPress={addOrUpdateTodo}
-              disabled={!value}>
-              <Icon name="check" size={30} color={constantColors.white} />
-            </TouchableOpacity>
+            <AddOrUpdateButton
+              addOrUpdateTodo={addOrUpdateTodo}
+              value={value}
+            />
+            <CancelButton cancelFunc={cancelFunc} />
           </View>
         )}
       </KeyboardAvoidingView>
@@ -172,44 +175,5 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: hp('3%'),
     fontWeight: 'bold',
-  },
-  addButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: wp('15%'),
-    height: wp('15%'),
-    borderRadius: wp('15%'),
-    backgroundColor: constantColors.check,
-    shadowColor: constantColors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-  },
-  emptyText: {
-    fontSize: 18,
-    color: constantColors.disable,
-  },
-  textInput: {
-    borderRadius: wp('1%'),
-    padding: wp('3%'),
-    marginVertical: hp('2%'),
-    backgroundColor: constantColors.white,
-    shadowColor: constantColors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
 });

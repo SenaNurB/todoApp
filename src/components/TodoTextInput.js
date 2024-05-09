@@ -1,14 +1,12 @@
 import {StyleSheet, TextInput} from 'react-native';
 import React from 'react';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
+import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import constantColors from '../constants/Color';
 
-const TodoTextInput = ({onChangeText, value, disabled}) => {
+const TodoTextInput = ({onChangeText, value, disabled, textInputRef}) => {
   return (
     <TextInput
+      ref={textInputRef}
       placeholder="Add ToDO"
       style={styles.textInput}
       multiline

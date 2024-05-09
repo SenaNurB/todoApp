@@ -5,7 +5,7 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Platform,
+  TextInput,
 } from 'react-native';
 import React, {useContext, useState, useEffect} from 'react';
 import TodoList from '../components/TodoList';
@@ -17,7 +17,12 @@ const MainScreen = () => {
   const [value, setValue] = useState('');
   const [updateTodo, setUpdateTodo] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [filteredTodoList, setFilteredTodoList] = useState([]);
   const todoContext = useContext(TodoContext);
+  const [isKeyboardAvoidingEnabled, setIsKeyboardAvoidingEnabled] =
+    useState(true);
+  const todoList = todoContext.todoList;
 
   useEffect(() => {
     async function getList() {
@@ -54,15 +59,35 @@ const MainScreen = () => {
     setUpdateTodo(item);
   };
 
+  const handleSearch = text => {
+    setSearchText(text);
+    const filteredTodoList = todoList.filter(todo =>
+      todo.text.toLowerCase().includes(searchText.toLowerCase()),
+    );
+    setFilteredTodoList(filteredTodoList);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         style={styles.mainContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        behavior={isKeyboardAvoidingEnabled ? 'padding' : undefined}>
         <View style={styles.todoContainer}>
           <Text style={styles.headerText}>TODO's</Text>
 
-          <TodoList updateTodoItem={updateTodoItem} />
+          <TextInput
+            placeholder="Search"
+            clearButtonMode="always"
+            value={searchText}
+            onChangeText={text => handleSearch(text)}
+            onFocus={() => setIsKeyboardAvoidingEnabled(false)}
+            onBlur={() => setIsKeyboardAvoidingEnabled(true)}
+          />
+
+          <TodoList
+            updateTodoItem={updateTodoItem}
+            data={searchText ? filteredTodoList : todoList}
+          />
         </View>
 
         <View style={styles.addTodoContainer}>

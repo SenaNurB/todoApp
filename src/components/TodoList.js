@@ -4,7 +4,7 @@ import ListItem from './ListItem';
 import {TodoContext} from '../context/todoContext';
 import {deleteTodo} from '../service/api';
 
-const TodoList = ({updateTodoItem}) => {
+const TodoList = ({updateTodoItem, data}) => {
   const todoContext = useContext(TodoContext);
 
   const deleteTodoItem = async id => {
@@ -28,7 +28,7 @@ const TodoList = ({updateTodoItem}) => {
 
   return (
     <FlatList
-      data={todoContext.todoList}
+      data={data}
       keyExtractor={item => item.id}
       renderItem={renderTodoItem}
     />

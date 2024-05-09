@@ -8,6 +8,7 @@ const TodoTextInput = ({onChangeText, value, disabled}) => {
       style={styles.textInput}
       multiline
       onChangeText={onChangeText}
+      autoCapitalize="none"
       value={value}
       disabled={disabled}
     />

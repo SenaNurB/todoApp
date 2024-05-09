@@ -25,8 +25,9 @@ const ListItem = ({data, deleteTodo, updateTodo}) => {
         <View
           style={[
             styles.todoCheck,
-            data?.checked && {backgroundColor: 'green'},
-          ]}></View>
+            data?.checked && {backgroundColor: '#A91D3A'},
+          ]}
+        />
       </TouchableOpacity>
 
       <View style={styles.itemTextContainer}>
@@ -34,11 +35,11 @@ const ListItem = ({data, deleteTodo, updateTodo}) => {
       </View>
 
       <TouchableOpacity onPress={updateTodo}>
-        <View style={[styles.actionIcon, {backgroundColor: 'green'}]}></View>
+        <View style={[styles.actionIcon, {backgroundColor: '#AD88C6'}]} />
       </TouchableOpacity>
 
       <TouchableOpacity onPress={deleteTodo}>
-        <View style={styles.actionIcon}></View>
+        <View style={styles.actionIcon} />
       </TouchableOpacity>
     </View>
   );
@@ -50,22 +51,30 @@ const styles = StyleSheet.create({
   container: {
     padding: 10,
     flexDirection: 'row',
-    elevation: 12,
     borderRadius: 10,
     marginVertical: 10,
-    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: '#ffff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   itemTextContainer: {
     flex: 1,
     marginRight: 5,
   },
   todoCheck: {
-    width: 20,
-    height: 20,
+    width: 25,
+    height: 25,
     borderWidth: 1,
-    borderRadius: 10,
+    borderColor: '#A91D3A',
+    borderRadius: 25,
     marginRight: 10,
   },
   actionIcon: {
@@ -73,7 +82,7 @@ const styles = StyleSheet.create({
     width: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'red',
+    backgroundColor: '#C73659',
     marginLeft: 5,
     borderRadius: 3,
   },

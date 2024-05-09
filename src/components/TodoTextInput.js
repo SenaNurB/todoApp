@@ -19,10 +19,18 @@ export default TodoTextInput;
 
 const styles = StyleSheet.create({
   textInput: {
-    borderWidth: 1,
     borderRadius: 10,
     flex: 5,
     marginRight: 10,
     padding: 20,
+    backgroundColor: '#ffff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });

@@ -23,10 +23,10 @@ const MainScreen = () => {
   const [filteredTodoList, setFilteredTodoList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const todoContext = useContext(TodoContext);
   const [isKeyboardAvoidingEnabled, setIsKeyboardAvoidingEnabled] =
     useState(true);
+
+  const todoContext = useContext(TodoContext);
   const todoList = todoContext.todoList;
 
   useEffect(() => {
@@ -34,8 +34,8 @@ const MainScreen = () => {
       setError(null);
       setIsLoading(true);
       try {
-        const todoList = await getTodoList();
-        todoContext.setTodoList(todoList);
+        const todoListData = await getTodoList();
+        todoContext.setTodoList(todoListData);
       } catch (e) {
         setError(e.message);
       }
@@ -94,12 +94,11 @@ const MainScreen = () => {
         style={styles.mainContainer}
         behavior={isKeyboardAvoidingEnabled ? 'padding' : undefined}>
         <View style={styles.todoContainer}>
-          <Text style={styles.headerText}>TODO's</Text>
-
           {todoList?.length > 0 ? (
             <>
               <TextInput
                 placeholder="Search"
+                style={styles.textInput}
                 clearButtonMode="always"
                 value={searchText}
                 onChangeText={text => handleSearch(text)}
@@ -113,9 +112,8 @@ const MainScreen = () => {
               />
             </>
           ) : (
-            <View
-              style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-              <Text style={{fontSize: 18, color: 'gray'}}>ADD TODO</Text>
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>ADD TODO</Text>
             </View>
           )}
         </View>
@@ -129,7 +127,8 @@ const MainScreen = () => {
             <TouchableOpacity
               style={styles.addButton}
               onPress={addOrUpdateTodo}
-              disabled={!value}></TouchableOpacity>
+              disabled={!value}
+            />
           </View>
         )}
       </KeyboardAvoidingView>
@@ -142,10 +141,11 @@ export default MainScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#EEEEEE',
   },
   mainContainer: {
     flex: 1,
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
     paddingVertical: 10,
   },
   todoContainer: {
@@ -157,15 +157,42 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 20,
   },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
   addButton: {
     width: 50,
     height: 50,
     borderRadius: 50,
-    borderWidth: 1,
     padding: 10,
+    backgroundColor: '#7ABA78',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: 'gray',
+  },
+  textInput: {
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 20,
+    backgroundColor: '#ffff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });

@@ -49,10 +49,9 @@ const MainScreen = () => {
   };
 
   const updateTodoItem = item => {
-    console.log(item);
-    setValue(item.item.text);
+    setValue(item.text);
     setIsEditing(true);
-    setUpdateTodo(item.item);
+    setUpdateTodo(item);
   };
 
   return (
@@ -67,10 +66,14 @@ const MainScreen = () => {
         </View>
 
         <View style={styles.addTodoContainer}>
-          <TodoTextInput value={value} setValue={setValue} />
+          <TodoTextInput
+            value={value}
+            onChangeText={value => setValue(value)}
+          />
           <TouchableOpacity
             style={styles.addButton}
-            onPress={addOrUpdateTodo}></TouchableOpacity>
+            onPress={addOrUpdateTodo}
+            disabled={!value}></TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

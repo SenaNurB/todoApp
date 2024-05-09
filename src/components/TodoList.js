@@ -20,7 +20,7 @@ const TodoList = ({updateTodoItem}) => {
           deleteTodoItem(itemData.item.id);
         }}
         updateTodo={() => {
-          updateTodoItem(itemData);
+          updateTodoItem(itemData.item);
         }}
       />
     );

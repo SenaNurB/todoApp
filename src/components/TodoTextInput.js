@@ -1,16 +1,15 @@
 import {StyleSheet, TextInput} from 'react-native';
 import React from 'react';
 
-const TodoTextInput = ({value, setValue}) => {
+const TodoTextInput = ({onChangeText, value, disabled}) => {
   return (
     <TextInput
       placeholder="Add ToDO"
       style={styles.textInput}
       multiline
-      numberOfLines={4}
-      maxLength={40}
-      onChangeText={text => setValue(text)}
+      onChangeText={onChangeText}
       value={value}
+      disabled={disabled}
     />
   );
 };

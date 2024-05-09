@@ -12,6 +12,8 @@ import TodoList from '../components/TodoList';
 import TodoTextInput from '../components/TodoTextInput';
 import {TodoContext} from '../context/todoContext';
 import {getTodoList, storeTodo, updateTodoFunc} from '../service/api';
+import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorMessage from '../components/ErrorMessage';
 
 const MainScreen = () => {
   const [value, setValue] = useState('');
@@ -19,6 +21,9 @@ const MainScreen = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [filteredTodoList, setFilteredTodoList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const todoContext = useContext(TodoContext);
   const [isKeyboardAvoidingEnabled, setIsKeyboardAvoidingEnabled] =
     useState(true);
@@ -26,15 +31,30 @@ const MainScreen = () => {
 
   useEffect(() => {
     async function getList() {
-      const todoList = await getTodoList();
-
-      todoContext.setTodoList(todoList);
+      setError(null);
+      setIsLoading(true);
+      try {
+        const todoList = await getTodoList();
+        todoContext.setTodoList(todoList);
+      } catch (e) {
+        setError(e.message);
+      }
+      setIsLoading(false);
     }
 
     getList();
   }, []);
 
+  if (error && !isLoading) {
+    return <ErrorMessage message={error} />;
+  }
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   const addOrUpdateTodo = async () => {
+    setIsLoading(true);
     if (isEditing) {
       const todoItem = {
         text: value,
@@ -51,6 +71,7 @@ const MainScreen = () => {
       setValue('');
     }
     setIsEditing(false);
+    setIsLoading(false);
   };
 
   const updateTodoItem = item => {
@@ -75,31 +96,42 @@ const MainScreen = () => {
         <View style={styles.todoContainer}>
           <Text style={styles.headerText}>TODO's</Text>
 
-          <TextInput
-            placeholder="Search"
-            clearButtonMode="always"
-            value={searchText}
-            onChangeText={text => handleSearch(text)}
-            onFocus={() => setIsKeyboardAvoidingEnabled(false)}
-            onBlur={() => setIsKeyboardAvoidingEnabled(true)}
-          />
+          {todoList?.length > 0 ? (
+            <>
+              <TextInput
+                placeholder="Search"
+                clearButtonMode="always"
+                value={searchText}
+                onChangeText={text => handleSearch(text)}
+                onFocus={() => setIsKeyboardAvoidingEnabled(false)}
+                onBlur={() => setIsKeyboardAvoidingEnabled(true)}
+              />
 
-          <TodoList
-            updateTodoItem={updateTodoItem}
-            data={searchText ? filteredTodoList : todoList}
-          />
+              <TodoList
+                updateTodoItem={updateTodoItem}
+                data={searchText ? filteredTodoList : todoList}
+              />
+            </>
+          ) : (
+            <View
+              style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
+              <Text style={{fontSize: 18, color: 'gray'}}>ADD TODO</Text>
+            </View>
+          )}
         </View>
 
-        <View style={styles.addTodoContainer}>
-          <TodoTextInput
-            value={value}
-            onChangeText={value => setValue(value)}
-          />
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={addOrUpdateTodo}
-            disabled={!value}></TouchableOpacity>
-        </View>
+        {isKeyboardAvoidingEnabled && (
+          <View style={styles.addTodoContainer}>
+            <TodoTextInput
+              value={value}
+              onChangeText={value => setValue(value)}
+            />
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={addOrUpdateTodo}
+              disabled={!value}></TouchableOpacity>
+          </View>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

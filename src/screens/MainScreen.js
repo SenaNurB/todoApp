@@ -94,6 +94,7 @@ const MainScreen = () => {
         style={styles.mainContainer}
         behavior={isKeyboardAvoidingEnabled ? 'padding' : undefined}>
         <View style={styles.todoContainer}>
+          <Text style={styles.headerText}>TODO's</Text>
           {todoList?.length > 0 ? (
             <>
               <TextInput
@@ -157,6 +158,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 20,
   },
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
   addButton: {
     width: 50,
     height: 50,
@@ -184,7 +189,7 @@ const styles = StyleSheet.create({
   textInput: {
     borderRadius: 10,
     padding: 10,
-    marginBottom: 20,
+    marginVertical: 20,
     backgroundColor: '#ffff',
     shadowColor: '#000',
     shadowOffset: {

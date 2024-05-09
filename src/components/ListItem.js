@@ -1,7 +1,7 @@
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React, {useContext} from 'react';
 import {TodoContext} from '../context/todoContext';
-import {updateTodoFunc} from '../service/api';
+import {deleteTodo, updateTodoFunc} from '../service/api';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {
   widthPercentageToDP as wp,
@@ -9,7 +9,7 @@ import {
 } from 'react-native-responsive-screen';
 import constantColors from '../constants/Color';
 
-const ListItem = ({data, deleteTodo, updateTodo}) => {
+const ListItem = ({data, updateTodo}) => {
   const todoContext = useContext(TodoContext);
 
   const checkedFunc = async () => {
@@ -20,6 +20,11 @@ const ListItem = ({data, deleteTodo, updateTodo}) => {
     };
     todoContext.updateTodo(data.id, {checked: !data.checked});
     await updateTodoFunc(data.id, todoItem);
+  };
+
+  const deleteTodoItem = async () => {
+    await deleteTodo(data.id);
+    todoContext.deleteTodo(data.id);
   };
 
   return (
@@ -60,7 +65,7 @@ const ListItem = ({data, deleteTodo, updateTodo}) => {
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={deleteTodo}>
+      <TouchableOpacity onPress={deleteTodoItem}>
         <View style={styles.actionIcon}>
           <Icon name="delete" size={20} color={constantColors.white} />
         </View>

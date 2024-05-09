@@ -1,5 +1,9 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
 const ErrorMessage = ({message}) => {
   return (
@@ -20,11 +24,11 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
-    fontSize: 24,
+    fontSize: hp('3%'),
     fontWeight: 'bold',
   },
   message: {
     textAlign: 'center',
-    marginTop: 10,
+    marginTop: wp('1%'),
   },
 });

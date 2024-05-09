@@ -2,6 +2,12 @@ import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React, {useContext} from 'react';
 import {TodoContext} from '../context/todoContext';
 import {updateTodoFunc} from '../service/api';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
+import constantColors from '../constants/Color';
 
 const ListItem = ({data, deleteTodo, updateTodo}) => {
   const todoContext = useContext(TodoContext);
@@ -25,21 +31,39 @@ const ListItem = ({data, deleteTodo, updateTodo}) => {
         <View
           style={[
             styles.todoCheck,
-            data?.checked && {backgroundColor: '#A91D3A'},
-          ]}
-        />
+            data?.checked && {backgroundColor: constantColors.check},
+          ]}>
+          <Icon name="check" size={20} color={constantColors.white} />
+        </View>
       </TouchableOpacity>
 
       <View style={styles.itemTextContainer}>
-        <Text>{data.text}</Text>
+        <Text
+          style={[
+            styles.text,
+            data?.checked && {
+              color: constantColors.disable,
+              textDecorationLine: 'line-through',
+            },
+          ]}>
+          {data.text}
+        </Text>
       </View>
 
       <TouchableOpacity onPress={updateTodo}>
-        <View style={[styles.actionIcon, {backgroundColor: '#AD88C6'}]} />
+        <View
+          style={[
+            styles.actionIcon,
+            {backgroundColor: constantColors.editBackground},
+          ]}>
+          <Icon name="edit" size={20} color={constantColors.white} />
+        </View>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={deleteTodo}>
-        <View style={styles.actionIcon} />
+        <View style={styles.actionIcon}>
+          <Icon name="delete" size={20} color={constantColors.white} />
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -49,14 +73,14 @@ export default ListItem;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    padding: wp('4%'),
     flexDirection: 'row',
-    borderRadius: 10,
-    marginVertical: 10,
+    borderRadius: wp('1%'),
+    marginVertical: hp('1%'),
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#ffff',
-    shadowColor: '#000',
+    backgroundColor: constantColors.white,
+    shadowColor: constantColors.black,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -67,23 +91,26 @@ const styles = StyleSheet.create({
   },
   itemTextContainer: {
     flex: 1,
-    marginRight: 5,
+    marginRight: wp('1%'),
   },
   todoCheck: {
-    width: 25,
-    height: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: wp('6%'),
+    height: wp('6%'),
     borderWidth: 1,
-    borderColor: '#A91D3A',
-    borderRadius: 25,
-    marginRight: 10,
+    borderColor: constantColors.check,
+    borderRadius: wp('6%'),
+    marginRight: wp('2%'),
   },
   actionIcon: {
-    height: 25,
-    width: 25,
+    height: wp('7%'),
+    width: wp('7%'),
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#C73659',
-    marginLeft: 5,
-    borderRadius: 3,
+    backgroundColor: constantColors.deleteBackground,
+    marginLeft: wp('1%'),
+    borderRadius: wp('1%'),
   },
+  text: {},
 });

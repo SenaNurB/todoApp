@@ -14,6 +14,12 @@ import {TodoContext} from '../context/todoContext';
 import {getTodoList, storeTodo, updateTodoFunc} from '../service/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
+import constantColors from '../constants/Color';
 
 const MainScreen = () => {
   const [value, setValue] = useState('');
@@ -126,10 +132,14 @@ const MainScreen = () => {
               onChangeText={value => setValue(value)}
             />
             <TouchableOpacity
-              style={styles.addButton}
+              style={[
+                styles.addButton,
+                !value && {backgroundColor: constantColors.disable},
+              ]}
               onPress={addOrUpdateTodo}
-              disabled={!value}
-            />
+              disabled={!value}>
+              <Icon name="check" size={30} color={constantColors.white} />
+            </TouchableOpacity>
           </View>
         )}
       </KeyboardAvoidingView>
@@ -142,33 +152,35 @@ export default MainScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: constantColors.backgroundColor,
   },
   mainContainer: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingHorizontal: wp('5%'),
+    paddingVertical: hp('2%'),
   },
   todoContainer: {
     flex: 10,
   },
   addTodoContainer: {
     flexDirection: 'row',
+    marginTop: hp('2%'),
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: hp('2%'),
   },
   headerText: {
-    fontSize: 24,
+    fontSize: hp('3%'),
     fontWeight: 'bold',
   },
   addButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-    padding: 10,
-    backgroundColor: '#7ABA78',
-    shadowColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: wp('15%'),
+    height: wp('15%'),
+    borderRadius: wp('15%'),
+    backgroundColor: constantColors.check,
+    shadowColor: constantColors.black,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -184,14 +196,14 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    color: 'gray',
+    color: constantColors.disable,
   },
   textInput: {
-    borderRadius: 10,
-    padding: 10,
-    marginVertical: 20,
-    backgroundColor: '#ffff',
-    shadowColor: '#000',
+    borderRadius: wp('1%'),
+    padding: wp('3%'),
+    marginVertical: hp('2%'),
+    backgroundColor: constantColors.white,
+    shadowColor: constantColors.black,
     shadowOffset: {
       width: 0,
       height: 2,

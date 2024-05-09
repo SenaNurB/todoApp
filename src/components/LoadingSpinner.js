@@ -1,10 +1,11 @@
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import React from 'react';
+import constantColors from '../constants/Color';
 
 const LoadingSpinner = () => {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="red" />
+      <ActivityIndicator size="large" color={constantColors.deleteBackground} />
     </View>
   );
 };

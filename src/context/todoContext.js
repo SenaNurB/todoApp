@@ -1,5 +1,12 @@
-import {createContext, useReducer} from 'react';
+import {createContext, useReducer, useMemo, useCallback} from 'react';
 
+// Action types
+const SET = 'SET';
+const ADD = 'ADD';
+const DELETE = 'DELETE';
+const UPDATE = 'UPDATE';
+
+// Initial context
 export const TodoContext = createContext({
   todoList: [],
   setTodoList: todoList => {},
@@ -8,55 +15,60 @@ export const TodoContext = createContext({
   updateTodo: (id, {text, checked, date}) => {},
 });
 
+// Reducer function
 const todoListReducer = (state, action) => {
   switch (action.type) {
-    case 'SET':
-      const reversedData = action.payload.reverse();
-      return reversedData;
-    case 'ADD':
+    case SET:
+      return action.payload.reverse();
+    case ADD:
       return [action.payload, ...state];
-    case 'DELETE':
+    case DELETE:
       return state.filter(todo => todo.id !== action.payload);
-    case 'UPDATE':
-      const updateTodoIndex = state.findIndex(
+    case UPDATE:
+      const updatedIndex = state.findIndex(
         todo => todo.id === action.payload.id,
-      ); // Hangi elemansa index'ini buluyoruz
-      const updateTodo = state[updateTodoIndex]; // elemanı bulup değişkene atıyoruz. Güncellenecek kurs.
-      const updateItem = {...updateTodo, ...action.payload.data}; // güncelleme işlemi
-      const updateTodoList = [...state];
-      updateTodoList[updateTodoIndex] = updateItem; // Liste içerisinde güncelleme yaptık
-      return updateTodoList;
+      );
+      const updatedItem = {...state[updatedIndex], ...action.payload.data};
+      return [
+        ...state.slice(0, updatedIndex),
+        updatedItem,
+        ...state.slice(updatedIndex + 1),
+      ];
     default:
       return state;
   }
 };
 
+// Context provider component
 const TodoContextProvider = ({children}) => {
   const [todoListState, dispatch] = useReducer(todoListReducer, []);
 
-  const setTodoList = todoList => {
-    dispatch({type: 'SET', payload: todoList});
-  };
+  const setTodoList = useCallback(todoList => {
+    dispatch({type: SET, payload: todoList});
+  }, []);
 
-  const addTodo = todoData => {
-    dispatch({type: 'ADD', payload: todoData});
-  };
+  const addTodo = useCallback(todoData => {
+    dispatch({type: ADD, payload: todoData});
+  }, []);
 
-  const deleteTodo = id => {
-    dispatch({type: 'DELETE', payload: id});
-  };
+  const deleteTodo = useCallback(id => {
+    dispatch({type: DELETE, payload: id});
+  }, []);
 
-  const updateTodo = (id, todoData) => {
-    dispatch({type: 'UPDATE', payload: {id: id, data: todoData}});
-  };
+  const updateTodo = useCallback((id, todoData) => {
+    dispatch({type: UPDATE, payload: {id, data: todoData}});
+  }, []);
 
-  const value = {
-    todoList: todoListState,
-    setTodoList: setTodoList,
-    addTodo: addTodo,
-    deleteTodo: deleteTodo,
-    updateTodo: updateTodo,
-  };
+  const value = useMemo(
+    () => ({
+      todoList: todoListState,
+      setTodoList,
+      addTodo,
+      deleteTodo,
+      updateTodo,
+    }),
+    [todoListState, setTodoList, addTodo, deleteTodo, updateTodo],
+  );
 
   return <TodoContext.Provider value={value}>{children}</TodoContext.Provider>;
 };

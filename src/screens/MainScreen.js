@@ -1,3 +1,4 @@
+import React, {useState, useRef} from 'react';
 import {
   KeyboardAvoidingView,
   SafeAreaView,
@@ -5,7 +6,6 @@ import {
   Text,
   View,
 } from 'react-native';
-import React, {useContext, useState, useEffect, useRef} from 'react';
 import {
   TodoList,
   TodoTextInput,
@@ -16,8 +16,7 @@ import {
   LoadingSpinner,
   CancelButton,
 } from '../components';
-import {TodoContext} from '../context/todoContext';
-import {getTodoList, storeTodo, updateTodoFunc} from '../service/api';
+import useTodos from '../hooks/useTodos';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -26,36 +25,48 @@ import constantColors from '../constants/Color';
 
 const MainScreen = () => {
   const [value, setValue] = useState('');
-  const [updateTodo, setUpdateTodo] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [searchText, setSearchText] = useState('');
-  const [filteredTodoList, setFilteredTodoList] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [updateTodo, setUpdateTodo] = useState(null);
   const [isKeyboardAvoidingEnabled, setIsKeyboardAvoidingEnabled] =
     useState(true);
   const textInputRef = useRef(null);
+  const {
+    todoList,
+    filteredTodoList,
+    isLoading,
+    error,
+    searchText,
+    setSearchText,
+    handleSearch,
+    addOrUpdateTodo,
+  } = useTodos();
 
-  const todoContext = useContext(TodoContext);
-  const todoList = todoContext.todoList;
+  const handleAddOrUpdateTodo = async () => {
+    const todoData = {
+      text: value,
+      date: isEditing ? updateTodo.date : new Date(),
+      checked: isEditing ? updateTodo.checked : false,
+    };
+    await addOrUpdateTodo(todoData, isEditing, updateTodo);
+    setValue('');
+    setIsEditing(false);
+    setSearchText('');
+  };
 
-  useEffect(() => {
-    async function getList() {
-      setError(null);
-      setIsLoading(true);
-      try {
-        const todoListData = await getTodoList();
-        todoContext.setTodoList(todoListData);
-      } catch (e) {
-        setError(e.message);
-      }
-      setIsLoading(false);
-    }
+  const handleUpdateTodo = item => {
+    setValue(item.text);
+    setIsEditing(true);
+    setUpdateTodo(item);
+    textInputRef.current.focus();
+  };
 
-    getList();
-  }, []);
+  const cancelUpdate = () => {
+    setIsEditing(false);
+    setValue('');
+    textInputRef.current.blur();
+  };
 
-  if (error && !isLoading) {
+  if (error) {
     return <ErrorMessage message={error} />;
   }
 
@@ -63,66 +74,20 @@ const MainScreen = () => {
     return <LoadingSpinner />;
   }
 
-  const addOrUpdateTodo = async () => {
-    setIsLoading(true);
-    if (isEditing) {
-      const todoItem = {
-        text: value,
-        date: updateTodo.date,
-        checked: updateTodo.checked,
-      };
-      todoContext.updateTodo(updateTodo.id, todoItem);
-      await updateTodoFunc(updateTodo.id, todoItem);
-      setValue('');
-      setSearchText('');
-    } else {
-      const todoItem = {text: value, date: new Date(), checked: false};
-      const id = await storeTodo(todoItem);
-      todoContext.addTodo({...todoItem, id: id});
-      setValue('');
-    }
-    setIsEditing(false);
-    setIsLoading(false);
-  };
-
-  const updateTodoItem = item => {
-    setValue(item.text);
-    setIsEditing(true);
-    setUpdateTodo(item);
-    textInputRef.current.focus();
-  };
-
-  const handleSearch = text => {
-    setSearchText(text);
-    const filteredTodoList = todoList.filter(todo =>
-      todo.text.toLowerCase().includes(searchText.toLowerCase()),
-    );
-    setFilteredTodoList(filteredTodoList);
-  };
-
-  const cancelFunc = () => {
-    setIsEditing(false);
-    setValue('');
-    textInputRef.current.blur();
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.mainContainer}
-        behavior={isKeyboardAvoidingEnabled ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.mainContainer} behavior="padding">
         <View style={styles.todoContainer}>
           <Text style={styles.headerText}>TODO's</Text>
-          {todoList?.length > 0 ? (
+          {todoList.length > 0 ? (
             <>
               <SearchInput
                 handleSearch={handleSearch}
                 searchText={searchText}
                 setIsKeyboardAvoidingEnabled={setIsKeyboardAvoidingEnabled}
               />
-
               <TodoList
-                updateTodoItem={updateTodoItem}
+                updateTodoItem={handleUpdateTodo}
                 data={searchText ? filteredTodoList : todoList}
               />
             </>
@@ -130,27 +95,25 @@ const MainScreen = () => {
             <NoData />
           )}
         </View>
-
         {isKeyboardAvoidingEnabled && (
           <View style={styles.addTodoContainer}>
             <TodoTextInput
               value={value}
-              onChangeText={text => setValue(text)}
+              onChangeText={setValue}
               textInputRef={textInputRef}
             />
             <AddOrUpdateButton
-              addOrUpdateTodo={addOrUpdateTodo}
+              addOrUpdateTodo={handleAddOrUpdateTodo}
               value={value}
+              isEditing={isEditing}
             />
-            <CancelButton cancelFunc={cancelFunc} />
+            <CancelButton cancelFunc={cancelUpdate} />
           </View>
         )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
-
-export default MainScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -177,3 +140,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default MainScreen;
